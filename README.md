@@ -20,3 +20,8 @@ curl -X POST http://127.0.0.1:8000/predict \
     "activity_level": "Med",
     "health_events": 0
   }'
+
+## Deployment
+https://railway.com (gives you a free 5$ credit under trial plan)
+<img width="1494" alt="image" src="https://github.com/user-attachments/assets/347998b6-18e7-4115-a6d5-fbfe6793bde7" />
+
