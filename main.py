@@ -26,7 +26,7 @@ app.add_middleware(
 
 
 # 2. Load the pickled model once at startup :contentReference[oaicite:3]{index=3}
-with open("pet_insurance_model.pkl", "rb") as f:
+with open("./machine_learning_models/pet_insurance_model_5000.pkl", "rb") as f:
     model = pickle.load(f)
 
 # 3. Pydantic model for incoming request body :contentReference[oaicite:4]{index=4}
@@ -41,17 +41,35 @@ class DogFeatures(BaseModel):
     health_events: int
 
 # 4. The exact feature columns order your model was trained on
-COLUMNS = [
-    'Age (Years)', 'Avg Daily Steps', 'Avg Resting Heart Rate (bpm)',
-    'Avg Daily Sleep (Hours)', 'Meals per Day', 'Health Events (Last Year)',
-    'Activity_High', 'Activity_Low', 'Activity_Medium',
-    'Breed_Beagle', 'Breed_Border Collie', 'Breed_Boxer',
-    'Breed_Bulldog', 'Breed_Chihuahua', 'Breed_Cocker Spaniel',
-    'Breed_Dachshund', 'Breed_Doberman', 'Breed_German Shepherd',
-    'Breed_Golden Retriever', 'Breed_Great Dane', 'Breed_Labrador',
-    'Breed_Maltese', 'Breed_Pomeranian', 'Breed_Poodle', 'Breed_Rottweiler',
-    'Breed_Shih Tzu', 'Breed_Siberian Husky', 'Breed_Yorkshire Terrier'
-]
+COLUMNS = ['Age (Years)',
+ 'Avg Daily Steps',
+ 'Avg Resting Heart Rate (bpm)',
+ 'Avg Daily Sleep (Hours)',
+ 'Meals per Day',
+ 'Health Events (Last Year)',
+ 'Activity_High',
+ 'Activity_Low',
+ 'Activity_Med',
+ 'Breed_Australian Shepherd',
+ 'Breed_Beagle',
+ 'Breed_Border Collie',
+ 'Breed_Boxer',
+ 'Breed_Bulldog',
+ 'Breed_Cavalier King Charles Spaniel',
+ 'Breed_Chihuahua',
+ 'Breed_Cocker Spaniel',
+ 'Breed_Dachshund',
+ 'Breed_Dalmatian',
+ 'Breed_French Bulldog',
+ 'Breed_German Shepherd',
+ 'Breed_Golden Retriever',
+ 'Breed_Great Dane',
+ 'Breed_Jack Russell Terrier',
+ 'Breed_Labrador Retriever',
+ 'Breed_Pomeranian',
+ 'Breed_Pug',
+ 'Breed_Rottweiler',
+ 'Breed_Siberian Husky']
 
 @app.post("/predict")
 async def predict(features: DogFeatures):
@@ -84,6 +102,13 @@ async def predict(features: DogFeatures):
         breed = features.breed
         breed_feats = {col: (1 if col == f"Breed_{breed}" else 0) 
                        for col in COLUMNS if col.startswith("Breed_")}
+        
+        
+        # breed_feats = {col: 0 for col in COLUMNS if col.startswith("Breed_")}  # Initialize all breeds to 0
+        # breed_column = f"Breed_{features.breed}"  # Correct column name for the breed
+        # if breed_column in breed_feats:
+        #     breed_feats[breed_column] = 1  # Set the selected breed to 1
+
 
         # 8. Combine all features into one dict
         data = {**num_feats, **activity_feats, **breed_feats}
@@ -92,8 +117,10 @@ async def predict(features: DogFeatures):
         df = pd.DataFrame([data], columns=COLUMNS)  # single-row DF :contentReference[oaicite:7]{index=7}
 
         # 10. Convert to NumPy array and predict
-        X = df.to_numpy()  # shape (1, n_features) :contentReference[oaicite:8]{index=8}
-        pred = model.predict(X)[0]
+        # X = df.to_numpy()  # shape (1, n_features) :contentReference[oaicite:8]{index=8}
+        # pred = model.predict(df)[0]
+        
+        pred = model.predict(df)[0]
 
         return {"premium": round(float(pred), 2)}
 
